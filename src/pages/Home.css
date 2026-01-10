@@ -1,0 +1,226 @@
+/* Home.css */
+
+/* Global Wrapper */
+.premium-home-wrapper {
+  background: #0f172a; /* Slate 900 */
+  min-height: 100vh;
+  color: #fff;
+  overflow-x: hidden; /* Prevents scrollbar from blobs */
+  position: relative;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Animated Blobs */
+.bg-blob {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  filter: blur(100px);
+  opacity: 0.25;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.blob-purple {
+  top: -10%;
+  right: -10%;
+  background: #a855f7;
+  animation: float 15s infinite alternate ease-in-out;
+}
+
+.blob-blue {
+  bottom: -10%;
+  left: -10%;
+  background: #3b82f6;
+  animation: float 18s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes float {
+  from { transform: translate(0, 0); }
+  to { transform: translate(60px, 40px); }
+}
+
+/* Hero Section */
+.hero-container {
+  padding-top: 160px; /* Account for navbar */
+  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.premium-badge {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 18px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  backdrop-filter: blur(5px);
+}
+
+.hero-title {
+  /* Dynamic font sizing */
+  font-size: clamp(2.5rem, 5vw, 4.5rem); 
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 1.5rem 0;
+  letter-spacing: -1px;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #60a5fa, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  color: #cbd5e1;
+  max-width: 600px;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+}
+
+/* Hero Buttons */
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap; /* Allows stacking on tiny screens */
+  justify-content: center;
+}
+
+.btn-main {
+  background: white;
+  color: #0f172a;
+  padding: 1rem 2.5rem;
+  border-radius: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.btn-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin-top: 4rem;
+  padding: 0 1rem;
+}
+
+.feature-card {
+  background: rgba(30, 41, 59, 0.4); /* Slightly lighter slate */
+  padding: 2.5rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s, border-color 0.3s, background 0.3s;
+  text-align: left;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(30, 41, 59, 0.7);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.f-icon {
+  color: #60a5fa;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.3));
+}
+
+.feature-card h3 {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.3rem;
+  color: #f1f5f9;
+}
+
+.feature-card p {
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 768px) {
+  .hero-container {
+    padding-top: 120px;
+  }
+
+  .premium-badge {
+    font-size: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Mobile Typography */
+  .hero-title br {
+    display: block; /* Ensure break happens */
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+
+  /* Full width buttons on mobile */
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .btn-main, .btn-glass {
+    width: 100%;
+    justify-content: center;
+    padding: 1.1rem; /* Larger touch target */
+  }
+
+  /* Blobs are distracting on mobile, tone them down */
+  .bg-blob {
+    opacity: 0.15;
+    width: 300px;
+    height: 300px;
+  }
+}

@@ -23,6 +23,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register-tenant" element={<TenantForm />} />
         <Route path="/portal" element={<TenantPortal />} />
+        <Route path="/signup" element={<Login />} />
 
         {/* Protected Routes */}
         <Route 
