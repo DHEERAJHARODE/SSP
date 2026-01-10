@@ -1,0 +1,83 @@
+.dashboard-container {
+  padding: 20px;
+  background-color: #f4f7f6;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.tenant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tenant-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.tenant-card:hover {
+  transform: translateY(-5px);
+}
+
+.tenant-image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.tenant-info {
+  padding: 15px;
+}
+
+.tenant-info h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.tenant-info p {
+  font-size: 14px;
+  margin: 5px 0;
+  color: #7f8c8d;
+}
+
+.address {
+  font-style: italic;
+  font-size: 12px !important;
+}
+
+.doc-previews {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.doc-previews span {
+  display: block;
+  font-size: 10px;
+  text-align: center;
+  color: #95a5a6;
+}
+
+.mini-doc {
+  width: 60px;
+  height: 40px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 20px;
+}
