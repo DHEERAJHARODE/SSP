@@ -1,29 +1,17 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuth, AuthProvider } from "./context/AuthContext";
 
-// Pages import
+// Pages
 import Login from "./pages/Login";
 import TenantForm from "./pages/TenantForm";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-
-// CSS
+import TenantPortal from "./pages/TenantPortal";
+import ContractView from "./pages/ContractView";
 import "./App.css";
 
-function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is logged in
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+function AppRoutes() {
+  const { user, loading } = useAuth(); // Access global auth state
 
   if (loading) return <div className="loading-screen">Initializing SafeStay...</div>;
 
@@ -34,15 +22,26 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register-tenant" element={<TenantForm />} />
+        <Route path="/portal" element={<TenantPortal />} />
 
-        {/* Protected Dashboard Route */}
+        {/* Protected Routes */}
         <Route 
           path="/dashboard" 
           element={user ? <Dashboard /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/contract" 
+          element={user ? <ContractView /> : <Navigate to="/login" />} 
         />
       </Routes>
     </Router>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}

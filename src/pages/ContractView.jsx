@@ -1,14 +1,13 @@
 import html2canvas from "html2canvas";
-import { db } from "../firebase/firebase";
+import { db } from "../firebase"; // Changed from "../firebase/firebase"
 import { addDoc, collection } from "firebase/firestore";
 
 export default function ContractView() {
-
   const saveContractAsText = async () => {
     const element = document.getElementById("contract-area");
 
     const canvas = await html2canvas(element, { scale: 2 });
-    const base64Image = canvas.toDataURL("image/png"); // ✅ TEXT
+    const base64Image = canvas.toDataURL("image/png");
 
     await addDoc(collection(db, "contracts"), {
       tenantName: "Demo Tenant",

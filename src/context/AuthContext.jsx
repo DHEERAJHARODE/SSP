@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../firebase";
+import { auth } from "../firebase"; // Ensure this points to your unified firebase.js
 import { onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext();
@@ -16,9 +16,10 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  // Exporting both user and loading
   return (
-    <AuthContext.Provider value={{ user }}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
     </AuthContext.Provider>
   );
 };
