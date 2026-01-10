@@ -1,0 +1,66 @@
+/* src/pages/TenantAgreement.css */
+
+.form-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.form-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.form-container p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-container input,
+.form-container textarea {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  background: #f9f9f9;
+}
+
+.form-container textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-container label {
+  font-weight: 600;
+  margin-top: 10px;
+  color: #444;
+}
+
+.form-container button[type="submit"] {
+  margin-top: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.form-container button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+}

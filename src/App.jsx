@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import TenantPortal from "./pages/TenantPortal";
 import ContractView from "./pages/ContractView";
+// ✅ Import the new component for the Tenant Link flow
+import TenantAgreement from "./pages/TenantAgreement"; 
 import "./App.css";
 
 function AppRoutes() {
@@ -25,11 +27,20 @@ function AppRoutes() {
         <Route path="/portal" element={<TenantPortal />} />
         <Route path="/signup" element={<Login />} />
 
-        {/* Protected Routes */}
+        {/* ✅ NEW: Tenant Agreement Flow */}
+        {/* 1. Tenant accesses the unique link sent by Owner */}
+        <Route path="/fill-agreement/:key" element={<TenantAgreement />} />
+        
+        {/* 2. Final generated stamp paper view (Public so tenant can see it after submitting) */}
+        <Route path="/view-contract" element={<ContractView />} />
+
+        {/* Protected Routes (Owner Only) */}
         <Route 
           path="/dashboard" 
           element={user ? <Dashboard /> : <Navigate to="/login" />} 
         />
+        
+        {/* Owner's protected view of contracts (optional, if accessed via Dashboard) */}
         <Route 
           path="/contract" 
           element={user ? <ContractView /> : <Navigate to="/login" />} 

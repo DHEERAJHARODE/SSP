@@ -1,20 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, LayoutDashboard, LogIn, Menu, X } from 'lucide-react'; // Added Menu & X
+import { 
+  Shield, 
+  LayoutDashboard, 
+  LogIn, 
+  Menu, 
+  X, 
+  User, 
+  LogOut, 
+  Phone, 
+  Settings, 
+  ChevronDown 
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import './Navbar.css'; // Import specific Navbar styles
+import './Navbar.css';
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); // Assuming logout comes from context
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleMenu = () => setIsMobileOpen(!isMobileOpen);
-
+  
   const handleNavigation = (path) => {
     navigate(path);
-    setIsMobileOpen(false); // Close menu on click
+    setIsMobileOpen(false);
+    setIsDropdownOpen(false);
   };
+
+  const handleLogout = async () => {
+    try {
+      if (logout) await logout();
+      navigate('/login');
+      setIsMobileOpen(false);
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
+  // Generate Avatar URL (Consistent with Dashboard)
+  const firstName = user?.displayName ? user.displayName.split(" ")[0] : (user?.email?.split("@")[0] || "U");
+  const avatarUrl = user?.photoURL || `https://ui-avatars.com/api/?name=${firstName}&background=3b82f6&color=fff&size=128&bold=true`;
 
   return (
     <nav className="premium-nav">
@@ -32,10 +71,45 @@ export default function Navbar() {
           </button>
           
           {user ? (
-            <button onClick={() => handleNavigation('/dashboard')} className="nav-pill">
-              <LayoutDashboard size={18} />
-              Dashboard
-            </button>
+            <div className="profile-wrapper" ref={dropdownRef}>
+              {/* Profile Trigger Button */}
+              <button 
+                className="profile-trigger" 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <img src={avatarUrl} alt="User" className="nav-avatar" />
+                <span className="nav-username">{firstName}</span>
+                <ChevronDown size={16} className={`chevron ${isDropdownOpen ? 'rotate' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="dropdown-menu">
+                  <div className="dropdown-header">
+                    <p className="dd-name">{user.displayName || "User"}</p>
+                    <p className="dd-email">{user.email}</p>
+                  </div>
+                  
+                  <button onClick={() => handleNavigation('/dashboard')} className="dropdown-item">
+                    <LayoutDashboard size={16} /> Dashboard
+                  </button>
+                  
+                  <button onClick={() => handleNavigation('/profile')} className="dropdown-item">
+                    <User size={16} /> My Profile
+                  </button>
+
+                  <button onClick={() => handleNavigation('/contact')} className="dropdown-item">
+                    <Phone size={16} /> Contact Us
+                  </button>
+                  
+                  <div className="dropdown-divider"></div>
+                  
+                  <button onClick={handleLogout} className="dropdown-item danger">
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <button onClick={() => handleNavigation('/login')} className="nav-pill">
               <LogIn size={18} />
