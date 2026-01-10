@@ -5,7 +5,7 @@
   background: #0f172a; /* Slate 900 */
   min-height: 100vh;
   color: #fff;
-  overflow-x: hidden; /* Prevents scrollbar from blobs */
+  /* overflow-x: hidden;  <-- REMOVED: This was causing the second scrollbar */
   position: relative;
   font-family: 'Inter', sans-serif;
 }

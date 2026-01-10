@@ -9,21 +9,6 @@
   background-color: #f8fafc;
 }
 
-/* Global Navigation (Optional helper) */
-nav {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-nav a {
-  text-decoration: none;
-  color: #1e293b;
-  font-weight: 500;
-}
-
-nav a:hover {
-  color: #2563eb;
-}
+/* NOTE: Global 'nav' styles have been removed here to allow 
+   src/components/Navbar.css to control the navigation styling fully. 
+*/
