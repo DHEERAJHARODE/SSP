@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowRight, ShieldCheck, UserCheck, FileText } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import './Home.css';
+import Footer from '../components/Footer';
 
 export default function Home() {
   return (
@@ -50,6 +51,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }
