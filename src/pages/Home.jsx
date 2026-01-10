@@ -64,7 +64,7 @@ export default function Home() {
           <div className="dashboard-strip">
             <div className="strip-header">
               <span className="user-welcome">👋 Welcome back, {user.displayName || "Owner"}</span>
-              <a href="/portal" className="goto-dash-link">Go to Full Dashboard <ArrowRight size={16} /></a>
+              <a href="/dashboard" className="goto-dash-link">Go to Full Dashboard <ArrowRight size={16} /></a>
             </div>
             
             <div className="strip-grid">

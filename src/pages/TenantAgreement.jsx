@@ -1,90 +1,207 @@
-// src/pages/TenantAgreement.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+import "./TenantAgreement.css"; // Ensure CSS file exists for styling
 
 export default function TenantAgreement() {
-  const { key } = useParams(); // URL se key milegi
+  const { key } = useParams(); // URL se key (e.g., /fill-agreement/ABC123)
   const navigate = useNavigate();
+  
   const [agreementData, setAgreementData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // Form State (Same as your TenantForm.jsx)
+  const [error, setError] = useState("");
+
+  // Form State for Tenant
   const [tenantData, setTenantData] = useState({
-    name: "", fatherName: "", address: "", mobile: "", aadhaar: "", signature: ""
+    name: "",
+    fatherName: "",
+    mobile: "",
+    email: "",
+    address: "",
+    aadhaar: "",
+    photo: "",     // New: Tenant Photo
+    signature: ""  // Signature
   });
 
-  // Verify Key on Load
+  // 1. Fetch Agreement Details by Key
   useEffect(() => {
     const fetchAgreement = async () => {
-      const q = query(collection(db, "agreements"), where("accessKey", "==", key));
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        setAgreementData({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
-      } else {
-        alert("Invalid Link or Key!");
-        navigate("/");
+      try {
+        const q = query(collection(db, "agreements"), where("accessKey", "==", key));
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          // Check if already filled
+          if (data.status === "filled") {
+            setError("⛔ This agreement has already been signed and closed.");
+          } else {
+            setAgreementData({ id: snapshot.docs[0].id, ...data });
+          }
+        } else {
+          setError("❌ Invalid Access Key or Link expired.");
+        }
+      } catch (err) {
+        console.error("Error fetching:", err);
+        setError("Network error. Please try again.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchAgreement();
-  }, [key, navigate]);
+  }, [key]);
 
-  // Handle Input (Same logic as existing form)
-  const handleInput = (e) => setTenantData({...tenantData, [e.target.name]: e.target.value});
-  
-  // Submit Form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if(!agreementData) return;
+  // Handle Text Inputs
+  const handleInput = (e) => {
+    setTenantData({ ...tenantData, [e.target.name]: e.target.value });
+  };
 
-    try {
-      // 1. Save Tenant Data linked to Agreement
-      await addDoc(collection(db, "tenants"), {
-        ...tenantData,
-        agreementId: agreementData.id,
-        createdAt: new Date().toISOString()
-      });
-
-      // 2. Update Agreement Status
-      const agreementRef = doc(db, "agreements", agreementData.id);
-      await updateDoc(agreementRef, { status: "filled", tenantName: tenantData.name });
-
-      // 3. Redirect to Final Contract View
-      // Hum data ko state ke through pass kar rahe hain agle page par
-      navigate("/view-contract", { state: { agreement: agreementData, tenant: tenantData } });
-
-    } catch (error) {
-      console.error("Error:", error);
+  // Handle File Uploads (Photo & Signature)
+  const handleFileUpload = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTenantData((prev) => ({ ...prev, [field]: reader.result }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  if(loading) return <div>Validating Key...</div>;
+  // 2. Submit Logic (Link Tenant to Agreement)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!tenantData.signature || !tenantData.photo) {
+      alert("Please upload both your Photo and Signature.");
+      return;
+    }
+    
+    setLoading(true);
+
+    try {
+      // Step A: Create Tenant Document
+      const tenantRef = await addDoc(collection(db, "tenants"), {
+        ...tenantData,
+        agreementId: agreementData.id, // Linking to Agreement
+        filledAt: new Date().toISOString()
+      });
+
+      // Step B: Update Agreement Status
+      const agreementRef = doc(db, "agreements", agreementData.id);
+      await updateDoc(agreementRef, {
+        status: "filled",
+        tenantName: tenantData.name,
+        tenantId: tenantRef.id
+      });
+
+      alert("✅ Agreement Signed Successfully!");
+      // Redirect to View Contract page with data
+      navigate("/view-contract", { state: { agreement: agreementData, tenant: tenantData } });
+
+    } catch (err) {
+      console.error("Error submitting:", err);
+      alert("Submission Failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="loading-screen">Verifying Secure Link...</div>;
+  
+  if (error) return (
+    <div className="error-screen">
+      <h2>{error}</h2>
+      <button onClick={() => navigate("/")}>Go Home</button>
+    </div>
+  );
 
   return (
-    <div className="form-container">
-      <h2>Rental Agreement for: {agreementData.propertyName}</h2>
-      <p>Please fill your details to generate the contract.</p>
-      
-      <form onSubmit={handleSubmit}>
-         <input name="name" placeholder="Full Name" onChange={handleInput} required />
-         <input name="fatherName" placeholder="Father Name" onChange={handleInput} required />
-         <input name="mobile" placeholder="Mobile" onChange={handleInput} required />
-         <textarea name="address" placeholder="Permanent Address" onChange={handleInput} required />
-         
-         {/* Signature Upload Logic (Reuse logic from your TenantForm.jsx) */}
-         <label>Upload Signature</label>
-         <input type="file" onChange={(e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => setTenantData({...tenantData, signature: reader.result});
-            if(file) reader.readAsDataURL(file);
-         }} required />
+    <div className="agreement-wrapper">
+      <div className="agreement-container">
+        
+        {/* SECTION 1: AGREEMENT DETAILS (READ ONLY) */}
+        <header className="agreement-header">
+          <h1>Rental Agreement Form</h1>
+          <p className="sub-text">Please review terms and fill your details below.</p>
+        </header>
 
-         <button type="submit">Generate Agreement</button>
-      </form>
+        <div className="details-card">
+          <h3>🏡 Property Details</h3>
+          <div className="info-grid">
+            <p><strong>Owner:</strong> {agreementData.ownerEmail}</p>
+            <p><strong>Property:</strong> {agreementData.propertyName}</p>
+            <p><strong>Monthly Rent:</strong> ₹{agreementData.rentAmount}</p>
+          </div>
+          
+          <div className="terms-box">
+            <h4>📜 Terms & Conditions:</h4>
+            <ul>
+              {agreementData.terms && agreementData.terms.map((term, index) => (
+                <li key={index}>{term}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* SECTION 2: TENANT FORM */}
+        <div className="form-card">
+          <h3>👤 Tenant Details</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Full Name *</label>
+                <input name="name" type="text" onChange={handleInput} required placeholder="As per Aadhaar" />
+              </div>
+              <div className="form-group">
+                <label>Father's Name *</label>
+                <input name="fatherName" type="text" onChange={handleInput} required />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Mobile Number *</label>
+                <input name="mobile" type="tel" onChange={handleInput} required />
+              </div>
+              <div className="form-group">
+                <label>Email ID</label>
+                <input name="email" type="email" onChange={handleInput} />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Permanent Address *</label>
+              <textarea name="address" rows="3" onChange={handleInput} required></textarea>
+            </div>
+
+            <div className="form-group">
+              <label>Aadhaar Number (Optional)</label>
+              <input name="aadhaar" type="text" onChange={handleInput} maxLength="12" />
+            </div>
+
+            {/* Upload Section */}
+            <div className="upload-row">
+              <div className="upload-box">
+                <label>📸 Your Photo *</label>
+                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "photo")} required />
+                {tenantData.photo && <img src={tenantData.photo} alt="Preview" className="preview-thumb" />}
+              </div>
+
+              <div className="upload-box">
+                <label>✍️ Your Signature *</label>
+                <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "signature")} required />
+                {tenantData.signature && <img src={tenantData.signature} alt="Sign" className="preview-thumb" />}
+              </div>
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? "Processing..." : "Sign & Generate Agreement"}
+            </button>
+          </form>
+        </div>
+
+      </div>
     </div>
   );
 }

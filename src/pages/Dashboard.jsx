@@ -7,7 +7,6 @@ import {
   FileText, 
   PlusCircle, 
   LogOut, 
-  User, 
   Copy, 
   CheckCircle, 
   Clock 
@@ -29,14 +28,20 @@ export default function Dashboard() {
   // Random Avatar based on name
   const avatarUrl = `https://ui-avatars.com/api/?name=${firstName}&background=0D8ABC&color=fff&size=128&bold=true`;
 
-  // Fetch Agreements
+  // Fetch Agreements (Updated to use ownerUid)
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, "agreements"), where("ownerEmail", "==", user.email));
+    
+    // Query: Fetch agreements where ownerUid matches the current logged-in user
+    const q = query(collection(db, "agreements"), where("ownerUid", "==", user.uid));
+    
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setAgreements(list);
+    }, (error) => {
+      console.error("Error fetching agreements:", error);
     });
+    
     return () => unsubscribe();
   }, [user]);
 
@@ -45,26 +50,37 @@ export default function Dashboard() {
   const signedAgreements = agreements.filter(a => a.status === "filled").length;
   const pendingAgreements = totalAgreements - signedAgreements;
 
-  // Generate Key & Create Agreement
+  // Generate Key & Create Agreement (Updated to save ownerUid)
   const handleCreateAgreement = async (e) => {
     e.preventDefault();
+    if (!user) {
+      alert("You must be logged in to create an agreement.");
+      return;
+    }
+
     const newKey = Math.random().toString(36).substring(2, 8).toUpperCase();
     
     try {
       await addDoc(collection(db, "agreements"), {
+        ownerUid: user.uid,        // Securely link to owner's UID
         ownerEmail: user.email,
         propertyName: formData.propertyName,
         rentAmount: formData.rentAmount,
-        terms: formData.terms.split('\n'),
+        terms: formData.terms.split('\n').filter(t => t.trim() !== ""), // Clean empty lines
         accessKey: newKey,
         status: "pending",
         createdAt: new Date().toISOString()
       });
+
       alert(`✅ Agreement Created! Share Key: ${newKey}`);
-      setFormData({ propertyName: "", rentAmount: "", terms: "" });
+      setFormData({ 
+        propertyName: "", 
+        rentAmount: "", 
+        terms: "1. Rent must be paid by the 5th of every month.\n2. Security deposit is refundable.\n3. Keep the premises clean." 
+      });
       setActiveTab("agreements"); // Switch to list view
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error creating agreement:", error);
       alert("❌ Failed to create agreement.");
     }
   };
