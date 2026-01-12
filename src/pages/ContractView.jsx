@@ -9,13 +9,12 @@ export default function ContractView() {
   // Get data passed from TenantAgreement or Dashboard
   const { agreement, tenant } = location.state || {};
 
-  // Agar data nahi hai (direct access without flow), to error dikhaye ya redirect kare
+  // Agar data nahi hai, to redirect karein
   if (!agreement || !tenant) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
+      <div className="error-container">
         <h2>No Agreement Data Found</h2>
-        <p>Please access this page via the generated link or dashboard.</p>
-        <button onClick={() => navigate("/dashboard")} style={{ padding: "10px", marginTop: "10px" }}>
+        <button onClick={() => navigate("/dashboard")} className="back-btn">
           Go to Dashboard
         </button>
       </div>
@@ -25,11 +24,11 @@ export default function ContractView() {
   const downloadPDF = async () => {
     const input = document.getElementById('stamp-paper-area');
     
-    // Temporarily hide the button or borders if needed before capture
-    // html2canvas capture
+    // High quality capture
     const canvas = await html2canvas(input, { 
       scale: 2,
-      useCORS: true // Important if loading images from external URLs
+      useCORS: true,
+      scrollY: -window.scrollY // Fix for potential scroll issues
     });
     const imgData = canvas.toDataURL('image/png');
     
@@ -45,51 +44,74 @@ export default function ContractView() {
     <div className="contract-container">
       <div className="action-bar">
         <button onClick={downloadPDF} className="download-btn">
-          Download PDF
+          Download & Save Agreement
         </button>
       </div>
 
       {/* Main Stamp Paper Area */}
       <div id="stamp-paper-area" className="stamp-paper">
-        {/* Background Image is set via CSS */}
         
+        {/* Content Overlay: यह स्टैम्प के हेडर के नीचे शुरू होगा */}
         <div className="content-overlay">
-          <h1 className="title">RENTAL AGREEMENT</h1>
+          <h1 className="contract-title">RENTAL AGREEMENT</h1>
           
-          <div className="details-section">
-            <p><strong>Property:</strong> {agreement.propertyName}</p>
-            <p><strong>Rent:</strong> ₹{agreement.rentAmount} / month</p>
-            <br/>
-            <h3>Tenant Details:</h3>
-            <p><strong>Name:</strong> {tenant.name}</p>
-            <p><strong>Father's Name:</strong> {tenant.fatherName}</p>
-            <p><strong>Permanent Address:</strong> {tenant.address}</p>
-            <p><strong>Mobile:</strong> {tenant.mobile}</p>
-            {tenant.aadhaar && <p><strong>Aadhaar:</strong> {tenant.aadhaar}</p>}
-          </div>
+          <div className="contract-body">
+            <div className="info-row">
+              <span className="label">Tenant Name:</span>
+              <span className="value">{tenant.name}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Father's Name:</span>
+              <span className="value">{tenant.fatherName}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Address:</span>
+              <span className="value">{tenant.address}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Mobile No:</span>
+              <span className="value">{tenant.mobile}</span>
+            </div>
+            {tenant.aadhaar && (
+              <div className="info-row">
+                <span className="label">Aadhaar No:</span>
+                <span className="value">{tenant.aadhaar}</span>
+              </div>
+            )}
+            
+            <hr className="divider" />
+            
+            <div className="info-row">
+              <span className="label">Property:</span>
+              <span className="value">{agreement.propertyName}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Monthly Rent:</span>
+              <span className="value">₹{agreement.rentAmount}/-</span>
+            </div>
 
-          <div className="terms-section">
-            <h3>Terms and Conditions:</h3>
-            <ul>
-              {/* Ensure terms is an array before mapping */}
-              {Array.isArray(agreement.terms) ? agreement.terms.map((term, index) => (
-                <li key={index}>{term}</li>
-              )) : <li>{agreement.terms}</li>}
-            </ul>
+            <div className="terms-section">
+              <h3>Terms and Conditions:</h3>
+              <ol>
+                {Array.isArray(agreement.terms) ? agreement.terms.map((term, index) => (
+                  <li key={index}>{term}</li>
+                )) : <li>{agreement.terms}</li>}
+              </ol>
+            </div>
           </div>
 
           <div className="signatures">
-            <div className="tenant-sign">
+            <div className="sign-box">
+              <p className="declaration">I accept all terms & conditions.</p>
               {tenant.signature ? (
-                <img src={tenant.signature} alt="Tenant Sign" />
+                <img src={tenant.signature} alt="Tenant Sign" className="sign-img" />
               ) : <div className="placeholder-sign">Signed</div>}
-              <p>Tenant Signature</p>
+              <p className="sign-label">Tenant Signature</p>
             </div>
             
-            <div className="owner-sign">
-              {/* Owner signature placeholder */}
-              <div className="placeholder-sign" style={{height:'50px'}}></div>
-              <p>Owner Signature</p>
+            <div className="sign-box owner">
+              <div className="placeholder-sign owner-placeholder"></div>
+              <p className="sign-label">Owner Signature</p>
             </div>
           </div>
         </div>

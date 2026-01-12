@@ -1,0 +1,215 @@
+/* src/pages/TenantPortal.css */
+
+/* 1. Main Background */
+.portal-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8fafc; /* Light Grayish Blue */
+  font-family: 'Segoe UI', sans-serif;
+  padding: 20px;
+}
+
+/* 2. Card Container */
+.portal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 600px;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+/* 3. Headings & Icons */
+.portal-icon {
+  color: #2563eb; /* Blue */
+  margin-bottom: 20px;
+}
+
+.portal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.portal-subtitle {
+  color: #64748b;
+  margin-bottom: 30px;
+  font-size: 15px;
+}
+
+/* 4. Input Fields (Key Entry) */
+.key-input {
+  width: 100%;
+  padding: 15px;
+  font-size: 24px;
+  letter-spacing: 5px;
+  text-align: center;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 20px;
+  transition: border-color 0.3s;
+}
+
+.key-input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.key-input::placeholder {
+  letter-spacing: normal;
+  font-size: 16px;
+  color: #94a3b8;
+}
+
+/* 5. Buttons */
+.verify-btn {
+  width: 100%;
+  padding: 15px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.verify-btn:hover {
+  background: #1d4ed8;
+}
+
+/* 6. Agreement Details Section */
+.agreement-info {
+  background: #eff6ff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+  border-left: 5px solid #2563eb;
+}
+
+.agreement-info h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e3a8a;
+}
+
+.agreement-info p {
+  margin: 5px 0 0;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+/* 7. Terms List */
+.terms-section {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.terms-section h3 {
+  font-size: 16px;
+  color: #334155;
+  margin-bottom: 10px;
+}
+
+.terms-section ul {
+  padding-left: 20px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 8. Tenant Form Inputs */
+.tenant-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.tenant-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #f8fafc;
+}
+
+/* 9. Camera Section */
+.portal-camera-box {
+  background: #f1f5f9;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.camera-preview {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 10px;
+  background: black;
+  display: block;
+}
+
+.camera-btn {
+  background: #0f172a;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.retake-link {
+  color: #ef4444;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 5px;
+  border: none;
+  background: none;
+}
+
+/* 10. Submit Button */
+.submit-agreement-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.submit-agreement-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
+}
+
+.submit-agreement-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}

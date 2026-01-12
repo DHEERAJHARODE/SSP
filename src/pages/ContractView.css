@@ -1,98 +1,201 @@
+/* =========================================
+   ContractView.css - Final Complete Code
+   ========================================= */
+
+/* 1. Main Page Container */
 .contract-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #f0f2f5;
+  padding: 30px;
+  background-color: #525659; /* PDF Viewer dark background */
   min-height: 100vh;
 }
 
+/* 2. Top Action Bar (Download Button) */
 .action-bar {
   margin-bottom: 20px;
 }
 
 .download-btn {
-  background-color: #28a745;
+  background-color: #007bff;
   color: white;
-  padding: 12px 24px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  transition: background-color 0.3s;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background-color 0.2s;
 }
 
 .download-btn:hover {
-  background-color: #218838;
+  background-color: #0056b3;
 }
 
-/* Stamp Paper Simulation */
+/* 3. Stamp Paper Simulation (A4 Size) */
 .stamp-paper {
-  width: 210mm;        /* A4 Width */
-  min-height: 297mm;   /* A4 Height */
+  width: 210mm;        /* Exact A4 Width */
+  min-height: 297mm;   /* Start with A4 Height */
+  height: auto;        /* Allow expansion if content is very long */
+  
   background-color: white;
-  /* Make sure stamp_paper.jpg is in your public folder */
+  
+  /* Ensure stamp_paper.jpg is in your 'public' folder */
   background-image: url('/stamp_paper.jpg'); 
-  background-size: 100% auto;
+  background-size: 100% auto; /* Width fit, height auto to keep aspect ratio of header */
   background-repeat: no-repeat;
-  box-shadow: 0 0 20px rgba(0,0,0,0.15);
+  background-position: top center;
+  
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
   position: relative;
-  font-family: 'Times New Roman', serif;
-  color: #000;
+  font-family: 'Hind', 'Arial', sans-serif;
+  color: #333;
   box-sizing: border-box;
+  overflow: hidden; 
 }
 
-/* Content Overlay - Adjust margin-top to clear the stamp header image */
+/* 4. Content Overlay - The textual part */
 .content-overlay {
-  margin-top: 35%; /* Adjust this % based on your image header height */
-  padding: 0 40px 40px 40px;
-  font-size: 14pt;
-  line-height: 1.5;
+  /* IMPORTANT: Adjust this % to push text below the green stamp header.
+     45% is a safe starting point for standard stamp papers. */
+  padding-top: 50%; 
+  padding-left: 12%;
+  padding-right: 10%;
+  padding-bottom: 40px;
+  
+  /* Compact Font Settings */
+  font-size: 13px; 
+  line-height: 1.45;
 }
 
-.title {
+/* Title Styling */
+.contract-title {
   text-align: center;
   text-decoration: underline;
-  font-weight: bold;
-  font-size: 20pt;
-  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 20px;
   text-transform: uppercase;
+  color: #000;
 }
 
-.details-section p, .terms-section li {
-  margin-bottom: 8px;
+.contract-body {
+  width: 100%;
 }
 
-.terms-section {
-  margin-top: 20px;
+/* 5. Information Rows (Label : Value) */
+.info-row {
+  display: flex;
+  margin-bottom: 6px; /* Reduced gap */
+  border-bottom: 1px dashed #eee;
+  padding-bottom: 2px;
+}
+
+.label {
+  font-weight: 700;
+  width: 130px; /* Fixed width for alignment */
+  color: #444;
+  font-size: 13px;
+}
+
+.value {
+  font-weight: 500;
+  color: #000;
+  flex: 1;
+}
+
+.divider {
+  border: 0;
   border-top: 1px solid #ccc;
-  padding-top: 10px;
+  margin: 12px 0;
 }
 
-.terms-section ul {
-  padding-left: 20px;
+/* 6. Terms & Conditions Section (Compact) */
+.terms-section {
+  margin-top: 15px;
 }
 
+.terms-section h3 {
+  font-size: 14px;
+  text-decoration: underline;
+  margin-bottom: 8px;
+  color: #000;
+}
+
+.terms-section ol {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.terms-section li {
+  margin-bottom: 4px; /* Tight spacing for list items */
+  text-align: justify;
+  font-size: 12px;    /* Smaller font for terms to save space */
+  line-height: 1.35;
+  color: #222;
+}
+
+/* 7. Signature Section */
 .signatures {
-  margin-top: 60px;
+  margin-top: 40px; /* Space above signatures */
   display: flex;
   justify-content: space-between;
-  padding: 0 20px;
+  align-items: flex-end;
 }
 
-.tenant-sign, .owner-sign {
+.sign-box {
   text-align: center;
-  width: 200px;
+  width: 40%;
 }
 
-.tenant-sign img {
-  max-width: 150px;
-  max-height: 60px;
+.declaration {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #555;
+  font-style: italic;
+}
+
+/* Signature Image Styling */
+.sign-img {
+  width: 80px;      /* Small width to save space */
+  max-height: 50px; /* Limit height */
+  object-fit: contain;
+  border-bottom: 1px solid #333;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
   display: block;
-  margin: 0 auto 5px auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.placeholder-sign {
-  height: 50px;
+.sign-label {
+  font-weight: bold;
+  font-size: 12px;
+  border-top: 1px solid #ccc;
+  padding-top: 4px;
+  margin-top: 2px;
+}
+
+/* Empty box for Owner to sign manually if needed */
+.owner-placeholder {
+  height: 40px; 
+  margin-bottom: 2px;
+}
+
+/* 8. Print Adjustments (When saving as PDF/Printing) */
+@media print {
+  .action-bar { display: none; }
+  .contract-container { 
+    padding: 0; 
+    background: none; 
+    display: block;
+  }
+  .stamp-paper { 
+    box-shadow: none; 
+    margin: 0;
+    page-break-after: always;
+  }
 }
