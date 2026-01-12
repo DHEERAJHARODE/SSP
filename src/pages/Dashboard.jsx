@@ -9,245 +9,261 @@ import {
   LogOut, 
   Copy, 
   CheckCircle, 
-  Clock 
+  Clock,
+  Menu, // Hamburger Icon
+  X     // Close Icon
 } from "lucide-react";
 import "./Dashboard.css";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth(); // Assuming logout function exists in context
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [agreements, setAgreements] = useState([]);
+  
+  // Mobile Sidebar State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     propertyName: "",
     rentAmount: "",
     terms: "1. Rent must be paid by the 5th of every month.\n2. Security deposit is refundable.\n3. Keep the premises clean.", 
   });
 
-  // User details extraction
   const firstName = user?.displayName ? user.displayName.split(" ")[0] : (user?.email?.split("@")[0] || "User");
-  // Random Avatar based on name
   const avatarUrl = `https://ui-avatars.com/api/?name=${firstName}&background=0D8ABC&color=fff&size=128&bold=true`;
 
-  // Fetch Agreements (Updated to use ownerUid)
   useEffect(() => {
     if (!user) return;
-    
-    // Query: Fetch agreements where ownerUid matches the current logged-in user
     const q = query(collection(db, "agreements"), where("ownerUid", "==", user.uid));
-    
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setAgreements(list);
-    }, (error) => {
-      console.error("Error fetching agreements:", error);
+      setAgreements(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
-    
     return () => unsubscribe();
   }, [user]);
 
-  // Stats Calculation
-  const totalAgreements = agreements.length;
-  const signedAgreements = agreements.filter(a => a.status === "filled").length;
-  const pendingAgreements = totalAgreements - signedAgreements;
-
-  // Generate Key & Create Agreement (Updated to save ownerUid)
   const handleCreateAgreement = async (e) => {
     e.preventDefault();
-    if (!user) {
-      alert("You must be logged in to create an agreement.");
-      return;
-    }
+    if (!formData.propertyName || !formData.rentAmount) return alert("Please fill details");
 
-    const newKey = Math.random().toString(36).substring(2, 8).toUpperCase();
-    
     try {
+      const accessKey = Math.random().toString(36).substring(2, 10).toUpperCase();
       await addDoc(collection(db, "agreements"), {
-        ownerUid: user.uid,        // Securely link to owner's UID
-        ownerEmail: user.email,
-        propertyName: formData.propertyName,
-        rentAmount: formData.rentAmount,
-        terms: formData.terms.split('\n').filter(t => t.trim() !== ""), // Clean empty lines
-        accessKey: newKey,
+        ...formData,
+        accessKey,
+        ownerUid: user.uid,
         status: "pending",
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        tenantSignature: null
       });
-
-      alert(`✅ Agreement Created! Share Key: ${newKey}`);
-      setFormData({ 
-        propertyName: "", 
-        rentAmount: "", 
-        terms: "1. Rent must be paid by the 5th of every month.\n2. Security deposit is refundable.\n3. Keep the premises clean." 
-      });
-      setActiveTab("agreements"); // Switch to list view
-    } catch (error) {
-      console.error("Error creating agreement:", error);
-      alert("❌ Failed to create agreement.");
+      alert("Agreement Created! Share the Access Key.");
+      setActiveTab("agreements");
+      setFormData({ propertyName: "", rentAmount: "", terms: formData.terms });
+    } catch (err) {
+      console.error(err);
+      alert("Error creating agreement");
     }
   };
 
-  const copyToClipboard = (key) => {
-    const link = `${window.location.origin}/fill-agreement/${key}`;
-    navigator.clipboard.writeText(link);
-    alert("🔗 Link Copied!");
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(`${window.location.origin}/tenant-login`);
+    alert("Login Link Copied! Share key: " + text);
+  };
+
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+    setIsSidebarOpen(false);
   };
 
   return (
     <div className="dashboard-wrapper">
-      {/* Sidebar Navigation */}
-      <aside className="sidebar">
-        <div className="brand">
-          <h2>SafeStay<span className="dot">.</span></h2>
+      
+      {/* Mobile Header Bar (Only visible on Mobile) */}
+      <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+          <Menu size={24} />
+        </button>
+        <span className="mobile-brand">Stay Safe.</span>
+        <img src={avatarUrl} alt="User" className="mobile-avatar" />
+      </div>
+
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
+      )}
+
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+        {/* Sidebar Header with Close Button */}
+        <div className="sidebar-header">
+          <div className="brand">
+            <h2>Stay Safe<span className="dot">.</span></h2>
+          </div>
+          {/* Close Button Inside Sidebar (Right aligned) */}
+          <button className="close-sidebar-btn" onClick={() => setIsSidebarOpen(false)}>
+            <X size={24} />
+          </button>
         </div>
         
+        <div className="user-profile-mini">
+          <img src={avatarUrl} alt="Profile" />
+          <div>
+            <h4>{firstName}</h4>
+            <span className="role-badge">Owner</span>
+          </div>
+        </div>
+
         <nav className="nav-menu">
-          <button onClick={() => setActiveTab("overview")} className={activeTab === "overview" ? "active" : ""}>
+          <button 
+            className={activeTab === "overview" ? "active" : ""} 
+            onClick={() => handleNavClick("overview")}
+          >
             <LayoutDashboard size={20} /> Overview
           </button>
-          <button onClick={() => setActiveTab("agreements")} className={activeTab === "agreements" ? "active" : ""}>
-            <FileText size={20} /> My Agreements
+          <button 
+            className={activeTab === "create" ? "active" : ""} 
+            onClick={() => handleNavClick("create")}
+          >
+            <PlusCircle size={20} /> Create Agreement
           </button>
-          <button onClick={() => setActiveTab("create")} className={activeTab === "create" ? "active" : ""}>
-            <PlusCircle size={20} /> Create New
+          <button 
+            className={activeTab === "agreements" ? "active" : ""} 
+            onClick={() => handleNavClick("agreements")}
+          >
+            <FileText size={20} /> My Agreements
           </button>
         </nav>
 
-        <div className="logout-section">
-          <button onClick={() => window.location.href = '/login'} className="logout-btn">
-            <LogOut size={18} /> Logout
-          </button>
-        </div>
+        <button className="logout-btn" onClick={logout}>
+          <LogOut size={20} /> Logout
+        </button>
       </aside>
 
-      {/* Main Content Area */}
+      {/* MAIN CONTENT */}
       <main className="main-content">
-        {/* Header */}
-        <header className="top-header">
-          <div className="header-title">
-            <h1>Welcome back, {firstName} 👋</h1>
-            <p>Manage your rental agreements securely.</p>
-          </div>
-          <div className="user-profile">
-            <img src={avatarUrl} alt="Profile" className="avatar" />
-            <div className="user-info">
-              <span className="user-name">{user?.displayName || firstName}</span>
-              <span className="user-role">Property Owner</span>
-            </div>
-          </div>
+        <header className="top-header desktop-only">
+          <h1>
+            {activeTab === "overview" && "Dashboard Overview"}
+            {activeTab === "create" && "New Agreement"}
+            {activeTab === "agreements" && "Manage Agreements"}
+          </h1>
+          <div className="date-badge">{new Date().toDateString()}</div>
         </header>
 
-        {/* Dynamic Content Based on Tab */}
-        <div className="content-body">
+        {/* Mobile Page Title (Below Header) */}
+        <div className="mobile-page-title">
+          <h2>
+             {activeTab === "overview" && "Overview"}
+             {activeTab === "create" && "New Agreement"}
+             {activeTab === "agreements" && "Agreements"}
+          </h2>
+        </div>
+
+        <div className="content-area">
           
-          {/* 1. OVERVIEW TAB */}
+          {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <div className="stats-grid">
-              <div className="stat-card blue">
-                <div className="icon-bg"><FileText size={24} /></div>
+              <div className="stat-card" onClick={() => handleNavClick("agreements")}>
+                <div className="icon-box blue"><FileText size={24}/></div>
                 <div>
-                  <h3>{totalAgreements}</h3>
+                  <h3>{agreements.length}</h3>
                   <p>Total Agreements</p>
                 </div>
               </div>
-              <div className="stat-card green">
-                <div className="icon-bg"><CheckCircle size={24} /></div>
+              <div className="stat-card">
+                <div className="icon-box green"><CheckCircle size={24}/></div>
                 <div>
-                  <h3>{signedAgreements}</h3>
+                  <h3>{agreements.filter(a => a.status === 'filled').length}</h3>
                   <p>Signed / Active</p>
                 </div>
               </div>
-              <div className="stat-card orange">
-                <div className="icon-bg"><Clock size={24} /></div>
+              <div className="stat-card">
+                <div className="icon-box orange"><Clock size={24}/></div>
                 <div>
-                  <h3>{pendingAgreements}</h3>
-                  <p>Pending Signature</p>
+                  <h3>{agreements.filter(a => a.status === 'pending').length}</h3>
+                  <p>Pending</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 2. CREATE AGREEMENT TAB */}
+          {/* CREATE AGREEMENT TAB */}
           {activeTab === "create" && (
             <div className="form-card">
-              <div className="card-header">
-                <h3>Draft New Agreement</h3>
-                <p>Define terms and generate a secure link for your tenant.</p>
-              </div>
+              <h2>Create Rental Agreement</h2>
               <form onSubmit={handleCreateAgreement}>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Property Name / Address</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Flat 101, Galaxy Apartments" 
-                      value={formData.propertyName}
-                      onChange={e => setFormData({...formData, propertyName: e.target.value})}
-                      required 
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Monthly Rent (₹)</label>
-                    <input 
-                      type="number" 
-                      placeholder="e.g. 15000" 
-                      value={formData.rentAmount}
-                      onChange={e => setFormData({...formData, rentAmount: e.target.value})}
-                      required 
-                    />
-                  </div>
+                <div className="form-group">
+                  <label>Property Name / Address</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Flat 101, Galaxy Apartment" 
+                    value={formData.propertyName}
+                    onChange={(e) => setFormData({...formData, propertyName: e.target.value})}
+                  />
                 </div>
                 <div className="form-group">
-                  <label>Terms & Conditions (One per line)</label>
+                  <label>Monthly Rent (₹)</label>
+                  <input 
+                    type="number" 
+                    placeholder="e.g. 12000" 
+                    value={formData.rentAmount}
+                    onChange={(e) => setFormData({...formData, rentAmount: e.target.value})}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Terms & Conditions</label>
                   <textarea 
-                    rows="6" 
+                    rows="5"
                     value={formData.terms}
-                    onChange={e => setFormData({...formData, terms: e.target.value})}
-                    required
+                    onChange={(e) => setFormData({...formData, terms: e.target.value})}
                   ></textarea>
                 </div>
-                <button type="submit" className="primary-btn">Generate Agreement Link</button>
+                <button type="submit" className="primary-btn">Generate Agreement</button>
               </form>
             </div>
           )}
 
-          {/* 3. MY AGREEMENTS TAB */}
+          {/* MY AGREEMENTS TAB */}
           {activeTab === "agreements" && (
             <div className="table-container">
-              <h3>Recent Agreements</h3>
               {agreements.length === 0 ? (
                 <div className="empty-state">
+                  <FileText size={48} color="#cbd5e1"/>
                   <p>No agreements found. Create one to get started.</p>
                 </div>
               ) : (
-                <table className="agreements-table">
-                  <thead>
-                    <tr>
-                      <th>Property</th>
-                      <th>Date Created</th>
-                      <th>Status</th>
-                      <th>Access Key</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agreements.map((ag) => (
-                      <tr key={ag.id}>
-                        <td>{ag.propertyName}</td>
-                        <td>{new Date(ag.createdAt).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`badge ${ag.status === 'filled' ? 'success' : 'pending'}`}>
-                            {ag.status === 'filled' ? 'Signed' : 'Pending'}
-                          </span>
-                        </td>
-                        <td className="key-text">{ag.accessKey}</td>
-                        <td>
-                          <button onClick={() => copyToClipboard(ag.accessKey)} className="action-btn" title="Copy Link">
-                            <Copy size={16} /> Copy Link
-                          </button>
-                        </td>
+                <div className="table-responsive">
+                  <table className="agreements-table">
+                    <thead>
+                      <tr>
+                        <th>Property</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Access Key</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {agreements.map((ag) => (
+                        <tr key={ag.id}>
+                          <td>{ag.propertyName}</td>
+                          <td>{new Date(ag.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            <span className={`badge ${ag.status === 'filled' ? 'success' : 'pending'}`}>
+                              {ag.status === 'filled' ? 'Signed' : 'Pending'}
+                            </span>
+                          </td>
+                          <td className="key-text">{ag.accessKey}</td>
+                          <td>
+                            <button onClick={() => copyToClipboard(ag.accessKey)} className="action-btn">
+                              <Copy size={16} /> <span className="btn-text">Link</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}
